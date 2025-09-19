@@ -10,8 +10,6 @@ const ICON_TEXT = '"%s"'
 ## String option
 
 func _ready() -> void:
-	while not copy_string_option.is_node_ready():
-		await get_tree().process_frame
 	_populate()
 
 
