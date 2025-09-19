@@ -37,7 +37,7 @@ metadata/_edit_lock_ = true
 [node name="TabContainer" type="TabContainer" parent="VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3
-current_tab = 4
+current_tab = 3
 drag_to_rearrange_enabled = true
 tabs_rearrange_group = 1
 script = ExtResource("1_16pao")
@@ -60,12 +60,12 @@ metadata/_tab_index = 2
 metadata/icon = SubResource("DPITexture_bb7lm")
 
 [node name="Editor Debugger" parent="VBoxContainer/TabContainer" instance=ExtResource("7_4skf5")]
-visible = false
 layout_mode = 2
 metadata/_tab_index = 3
 metadata/icon = ExtResource("5_mmdrg")
 
 [node name="Load Control" parent="VBoxContainer/TabContainer" instance=ExtResource("8_bb7lm")]
+visible = false
 layout_mode = 2
 metadata/_tab_index = 4
 metadata/icon = ExtResource("9_4skf5")

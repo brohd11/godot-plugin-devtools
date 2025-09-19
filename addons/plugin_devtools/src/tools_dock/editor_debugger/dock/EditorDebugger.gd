@@ -24,9 +24,13 @@ func _enter_tree() -> void:
 	_control_highlighter.hide()
 	get_viewport().add_child.call_deferred(_control_highlighter)
 
+
 func _exit_tree() -> void:
 	if _control_highlighter != null:
 		_control_highlighter.queue_free()
+	
+	## Add window
+	_disconnect_windows()
 
 func highlight_checkbox_toggled(value: bool) -> void:
 	if !value:
@@ -68,56 +72,67 @@ func _highlight_node(node: Node) -> void:
 	if !_highlight_checkbox.button_pressed:
 		_control_highlighter.hide()
 		return
+	
+	## Add window
+	if node is not Control:
+		_control_highlighter.hide()
+		return
+	
+	if _control_highlighter.get_window() != node.get_window():
+		_control_highlighter.reparent(node.get_viewport())
+	## Add window
+	
 	if node is Control:
 		var target_control := (node as Control)
 		_control_highlighter.global_position = target_control.global_position
 		_control_highlighter.size = target_control.size
 		_control_highlighter.show()
-	else:
-		_control_highlighter.hide()
+	#else:
+		#_control_highlighter.hide()
 
 func _on_Tree_nothing_selected() -> void:
 	_control_highlighter.hide()
 
 func _input(event: InputEvent) -> void:
+	return
 	if event is InputEventKey:
 		if event.pressed:
 			if event.keycode == KEY_F12:
 				pick(get_viewport().get_mouse_position())
 
-func pick(mpos: Vector2) -> void:
-	var root := get_tree().root
-	var node := _pick(root, mpos)
-	if node != null:
-		print("Picked ", node, " at ", node.get_path())
-		_tree.focus_node(node)
-	else:
-		_highlight_node(null)
-
-func _pick(root: Node, mpos: Vector2, level := 0) -> Node:
-	var node: Node = null
-	
-	for i in root.get_child_count(true):
-		var child := root.get_child(i, true)
-		
-		if (child is CanvasItem and not child.visible):
-			continue
-		if child is Viewport:
-			continue
-		if child == _control_highlighter:
-			continue
-		
-		if child is Control and child.get_global_rect().has_point(mpos):
-			var c := _pick(child, mpos, level + 1)
-			if c != null:
-				return c
-			else:
-				node = child
-		else:
-			var c := _pick(child, mpos, level + 1)
-			if c != null:
-				return c
-	return node
+#func pick(mpos: Vector2) -> void:
+	#var root := get_tree().root
+	#var node := _pick(root, mpos)
+	#if node != null:
+		#print("Picked ", node, " at ", node.get_path())
+		#_tree.focus_node(node)
+	#else:
+		#_highlight_node(null)
+#
+#func _pick(root: Node, mpos: Vector2, level := 0) -> Node:
+	#var node: Node = null
+	#
+	#for i in root.get_child_count(true):
+		#var child := root.get_child(i, true)
+		#
+		#if (child is CanvasItem and not child.visible):
+			#continue
+		#if child is Viewport:
+			#continue
+		#if child == _control_highlighter:
+			#continue
+		#
+		#if child is Control and child.get_global_rect().has_point(mpos):
+			#var c := _pick(child, mpos, level + 1)
+			#if c != null:
+				#return c
+			#else:
+				#node = child
+		#else:
+			#var c := _pick(child, mpos, level + 1)
+			#if c != null:
+				#return c
+	#return node
 
 static func override_ownership(root: Node, owners: Dictionary, include_internal: bool) -> void:
 	assert(root is Node)
@@ -173,3 +188,102 @@ func _on_SaveBranchFileDialog_file_selected(path: String) -> void:
 	ResourceSaver.save(packed_scene, path)
 	# Revert ownership of all children.
 	restore_ownership(node, owners, true)
+
+## Window changes
+
+
+func pick(mpos: Vector2) -> void:
+	var root := get_window().get_focused_window()
+	var node := _pick(root, mpos)
+	if node != null:
+		print("Picked ", node, " at ", node.get_path())
+		_tree.focus_node(node)
+	else:
+		_highlight_node(null)
+
+func _pick(root: Node, mpos: Vector2, level := 0) -> Node:
+	var node: Node = null
+	
+	for i in root.get_child_count(true):
+		var child := root.get_child(i, true)
+		
+		if (child is CanvasItem and not child.visible):
+			continue
+		if child is Viewport:
+			continue
+		if child == _control_highlighter:
+			continue
+		
+		if child is Control and child.get_global_rect().has_point(mpos):
+			var c := _pick(child, mpos, level + 1)
+			if c != null:
+				return c
+			else:
+				node = child
+		else:
+			var c := _pick(child, mpos, level + 1)
+			if c != null:
+				return c
+	return node
+
+
+
+
+
+
+
+
+
+## Add window
+
+var connected_windows:Array = []
+
+func _ready() -> void:
+	_on_tree_updated()
+	
+	if not tree_entered.is_connected(_on_tree_updated):
+		tree_entered.connect(_on_tree_updated)
+	
+	if not _tree.updated_entries.is_connected(_on_tree_updated):
+		_tree.updated_entries.connect(_on_tree_updated)
+
+
+func _combined_input(event, a):
+	if event is InputEventKey:
+		if event.pressed:
+			if event.keycode == KEY_F12:
+				pick(get_window().get_focused_window().get_mouse_position())
+
+func _on_tree_updated(entry=null, time=null):
+	_connect_window_signals()
+
+func _connect_window_signals():
+	for i in DisplayServer.get_window_list():
+		var window = instance_from_id(DisplayServer.window_get_attached_instance_id(i))
+		if not window.window_input.is_connected(_combined_input):
+			window.window_input.connect(_combined_input.bind(window))
+			if not window in connected_windows:
+				connected_windows.append(window)
+	
+	_clean_free_windows()
+
+func _clean_free_windows():
+	var freed_windows = []
+	for window in connected_windows:
+		if not is_instance_valid(window):
+			freed_windows.append(window)
+	
+	for window in freed_windows:
+		connected_windows.erase(window)
+
+
+func _disconnect_windows():
+	_clean_free_windows()
+	
+	for window in connected_windows:
+		if not is_instance_valid(window):
+			continue
+		if window.window_input.is_connected(_combined_input):
+			window.window_input.disconnect(_combined_input)
+	
+	connected_windows.clear()
