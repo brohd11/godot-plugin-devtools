@@ -9,6 +9,15 @@ var dock_popup : Popup
 var add_to_bottom_button : Button
 var _docks : Dictionary[DockSlot, Control] = {}
 
+var dock_manager: DockManager
+
+func _get_plugin_name() -> String:
+	return "PluginDevTools"
+func _has_main_screen() -> bool:
+	return true
+func _get_plugin_icon() -> Texture2D:
+	return plugin_icon
+
 func _enable_plugin() -> void:
 	# Add autoloads here.
 	pass
@@ -18,9 +27,14 @@ func _disable_plugin() -> void:
 	pass
 
 func _enter_tree() -> void:
-	name = "PluginDevTools"
-	tools_dock = tools_dock_scene.instantiate()
-	add_control_to_bottom_panel(tools_dock, "Plugin DevTools")
+	DockManager.hide_main_screen_button(self)
+	
+	name = _get_plugin_name()
+	
+	add_tool_menu_item(name, _on_tool_menu_pressed)
+	
+	#tools_dock = tools_dock_scene.instantiate()
+	#add_control_to_bottom_panel(tools_dock, "Plugin DevTools")
 
 	# set_dock_tab_icon(tools_dock, plugin_icon)
 	# var tc : TabContainer = tools_dock.get_parent()
@@ -29,9 +43,14 @@ func _enter_tree() -> void:
 	# tools_dock.get_child(0).get_child(0).set_popup(popup)
 
 func _exit_tree() -> void:
+	if is_instance_valid(dock_manager):
+		dock_manager.clean_up()
+	
 	# remove_control_from_docks(tools_dock)
-	remove_control_from_bottom_panel(tools_dock)
-	tools_dock.queue_free()
+	
+	#remove_control_from_bottom_panel(tools_dock)
+	#tools_dock.queue_free()
+	pass
 
 func _add_bottom_panel_button_to_popup() -> void:
 	var tc : TabContainer = tools_dock.get_parent()
@@ -49,3 +68,11 @@ func _get_docks() -> void:
 		_docks[slot] = dummy_control.get_parent()
 		remove_control_from_docks(dummy_control)
 	dummy_control.queue_free()
+
+## DockManager
+func _on_tool_menu_pressed():
+	if is_instance_valid(dock_manager):
+		print("%s already instanced." % name)
+		return
+	var can_be_freed = true
+	dock_manager = DockManager.new(self, tools_dock_scene, DockManager.Slot.FLOATING, can_be_freed)

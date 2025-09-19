@@ -1,5 +1,5 @@
 @tool
-extends "SearchMenu.gd"
+extends "res://addons/plugin_devtools/src/controls/SearchMenu.gd"
 
 func _ready() -> void:
 	text = ""

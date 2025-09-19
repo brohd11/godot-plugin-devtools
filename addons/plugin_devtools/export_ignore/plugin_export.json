@@ -1,0 +1,75 @@
+{
+	"export_root": "res://addons/plugin_devtools/export_ignore/exports",
+	"exports": [
+		{
+			"exclude": {
+				"directories": [
+					"res://addons/plugin_devtools/export_ignore"
+				],
+				"file_extensions": [],
+				"files": []
+			},
+			"export_folder": "plugin-devtools{{version=plugin_devtools}}/plugin_devtools",
+			"other_transfers": [],
+			"parser_overide_settings": {
+				"parse_cs": {
+
+				},
+				"parse_gd": {
+
+				},
+				"parse_tscn": {
+
+				}
+			},
+			"remote_dir": "res://addons/plugin_devtools/src/remote",
+			"source": "res://addons/plugin_devtools"
+		},
+		{
+			"exclude": {
+				"directories": [
+					"res://addons/plugin_devtools/export_ignore"
+				],
+				"file_extensions": [],
+				"files": []
+			},
+			"export_folder": "plugin-devtools{{version=plugin_devtools}}/plugin_devtools_compat",
+			"other_transfers": [],
+			"parser_overide_settings": {
+				"parse_cs": {
+
+				},
+				"parse_gd": {
+					"backport_target": 4,
+				},
+				"parse_tscn": {
+
+				}
+			},
+			"remote_dir": "res://addons/plugin_devtools/src/remote",
+			"source": "res://addons/plugin_devtools"
+		}
+	],
+	"options": {
+		"include_import": true,
+		"include_uid": true,
+		"overwrite": true,
+		"parser_settings": {
+			"parse_cs": {
+				"namespace_rename": {
+
+				}
+			},
+			"parse_gd": {
+				"backport_target": 100,
+				"class_rename_ignore": []
+			},
+			"parse_tscn": {
+
+			}
+		}
+	},
+	"plugin_folder": "PluginDevtools{{version=plugin_devtools}}",
+	"post_script": "res://addons/plugin_devtools/export_ignore/pre_post_export.gd",
+	"pre_script": "res://addons/plugin_devtools/export_ignore/pre_post_export.gd"
+}

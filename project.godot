@@ -16,7 +16,7 @@ config/icon="res://icon.svg"
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/plugin_devtools/plugin.cfg")
+enabled=PackedStringArray("res://addons/plugin_devtools/plugin.cfg", "res://addons/plugin_exporter/plugin.cfg", "res://addons/plugin_exporter/sub_plugins/godot_editor_console/plugin.cfg")
 
 [rendering]
 
