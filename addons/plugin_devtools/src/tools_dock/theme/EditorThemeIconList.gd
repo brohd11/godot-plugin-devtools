@@ -4,8 +4,14 @@ extends EditorThemeExplorerList
 const EditorThemeExplorerList := preload("uid://dg4oc6ix73l6v")
 const COPY_TEXT := 'EditorInterface.get_editor_theme().get_icon("%s", "%s")'
 
+## String option
+@onready var copy_string_option: OptionButton = %CopyStringOption
+const ICON_TEXT = '"%s"'
+## String option
 
 func _ready() -> void:
+	while not copy_string_option.is_node_ready():
+		await get_tree().process_frame
 	_populate()
 
 
@@ -29,6 +35,11 @@ func _load_icon(icon_name: String) -> Texture2D:
 
 
 func _get_copy_format_string() -> String:
+	## String option
+	match copy_string_option.selected:
+		0: return COPY_TEXT
+		1: return ICON_TEXT
+	## String option
 	return COPY_TEXT
 
 
