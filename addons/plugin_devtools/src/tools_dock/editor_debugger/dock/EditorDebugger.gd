@@ -194,7 +194,7 @@ func _on_SaveBranchFileDialog_file_selected(path: String) -> void:
 
 
 func pick(mpos: Vector2) -> void:
-	var root := get_window().get_focused_window()
+	var root = get_window().get_focused_window() # remove cast for <4.5 compat
 	var node := _pick(root, mpos)
 	if node != null:
 		print("Picked ", node, " at ", node.get_path())

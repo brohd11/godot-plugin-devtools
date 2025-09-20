@@ -36,11 +36,12 @@
 			"export_folder": "plugin-devtools{{version=plugin_devtools}}/plugin_devtools_compat",
 			"other_transfers": [],
 			"parser_overide_settings": {
+				"backport_target": 4,
 				"parse_cs": {
 
 				},
 				"parse_gd": {
-					"backport_target": 4,
+					
 				},
 				"parse_tscn": {
 
@@ -55,14 +56,18 @@
 		"include_uid": true,
 		"overwrite": true,
 		"parser_settings": {
+			"backport_target": 100,
 			"parse_cs": {
 				"namespace_rename": {
 
 				}
 			},
 			"parse_gd": {
-				"backport_target": 100,
-				"class_rename_ignore": []
+				
+				"class_rename_ignore": [],
+				"backport_string_renames":{
+					"tab_bar.close_with_middle_mouse = true": {"replace":"#tab_bar.close_with_middle_mouse = true # compat","min_ver":4},
+				},
 			},
 			"parse_tscn": {
 
