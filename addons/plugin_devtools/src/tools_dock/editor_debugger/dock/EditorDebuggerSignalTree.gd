@@ -21,6 +21,7 @@ func _mouse_select(_position: Vector2, mouse_button_index: int) -> void:
 		var item := get_selected()
 		if item.collapsed:
 			item.collapsed = false
+		
 		var meta : Variant = item.get_metadata(0)
 		prints(meta, type_string(typeof(meta)))
 		if meta is Signal:
@@ -132,6 +133,7 @@ func _build_signal_item(parent: TreeItem, node: Node, signal_info: Dictionary) -
 func _build_callable_item(parent: TreeItem, callable: Callable) -> void:
 	var item := create_item(parent)
 	var c_object : Object = callable.get_object()
+	print(c_object)
 	item.collapsed = true
 	item.set_metadata(0, callable)
 

@@ -65,7 +65,8 @@ func _on_Tree_item_selected() -> void:
 func _on_Tree_item_mouse_selected(_position: Vector2, mouse_button_index: int) -> void:
 	if mouse_button_index == MOUSE_BUTTON_RIGHT:
 		_select_node()
-		_popup_menu.set_position(get_viewport().get_mouse_position())
+		#_popup_menu.set_position(get_viewport().get_mouse_position())
+		_popup_menu.set_position(DisplayServer.mouse_get_position()) # allow for windows
 		_popup_menu.popup()
 
 func _highlight_node(node: Node) -> void:
@@ -94,7 +95,7 @@ func _on_Tree_nothing_selected() -> void:
 	_control_highlighter.hide()
 
 func _input(event: InputEvent) -> void:
-	return
+	return # reroute to _combined_input()
 	if event is InputEventKey:
 		if event.pressed:
 			if event.keycode == KEY_F12:
@@ -248,7 +249,7 @@ func _ready() -> void:
 		_tree.updated_entries.connect(_on_tree_updated)
 
 
-func _combined_input(event, a):
+func _combined_input(event, window):
 	if event is InputEventKey:
 		if event.pressed:
 			if event.keycode == KEY_F12:

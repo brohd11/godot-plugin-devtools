@@ -232,9 +232,7 @@ func focus_node(node: Node) -> void:
 	var parent: Node = get_tree().root
 	var path := node.get_path()
 	var parent_view := get_root()
-	
 	var node_item: TreeItem = null
-	
 	for i in range(1, path.get_name_count()):
 		var part := path.get_name(i)
 		
@@ -257,7 +255,7 @@ func focus_node(node: Node) -> void:
 	
 	if node_item != null:
 		_uncollapse_to_root(node_item)
-		node_item.select(0)
+		node_item.select.call_deferred(0) # fix 'blocked > 0' error in tree
 		ensure_cursor_is_visible()
 
 
