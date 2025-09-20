@@ -202,6 +202,7 @@ func pick(mpos: Vector2) -> void:
 	else:
 		_highlight_node(null)
 
+
 func _pick(root: Node, mpos: Vector2, level := 0) -> Node:
 	var node: Node = null
 	
@@ -240,6 +241,8 @@ func _pick(root: Node, mpos: Vector2, level := 0) -> Node:
 var connected_windows:Array = []
 
 func _ready() -> void:
+	if is_part_of_edited_scene():
+		return
 	_on_tree_updated()
 	
 	if not tree_entered.is_connected(_on_tree_updated):
