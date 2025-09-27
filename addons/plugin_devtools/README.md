@@ -2,6 +2,11 @@
  [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
  ![Static Badge](https://img.shields.io/badge/Tool-Addon-Green)
 
+## brohd11 Fork
+ - Add DockManager enabling floating window and docking
+ - Convert SVGTexture to DPITexture
+ - Compatibility package compatible with 4.4
+
 
 <div align="center">
 	<br/>
