@@ -33,7 +33,7 @@
 				"file_extensions": [],
 				"files": []
 			},
-			"export_folder": "plugin-devtools{{version=plugin_devtools}}/plugin_devtools_compat",
+			"export_folder": "plugin-devtools-compat{{version=plugin_devtools}}/plugin_devtools_compat",
 			"other_transfers": [],
 			"parser_overide_settings": {
 				"backport_target": 4,

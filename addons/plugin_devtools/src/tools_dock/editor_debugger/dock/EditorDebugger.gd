@@ -194,7 +194,7 @@ func _on_SaveBranchFileDialog_file_selected(path: String) -> void:
 
 
 func pick(mpos: Vector2) -> void:
-	var root = get_window().get_focused_window() # remove cast for <4.5 compat
+	var root = _get_focused_window() # remove cast for <4.5 compat
 	var node := _pick(root, mpos)
 	if node != null:
 		print("Picked ", node, " at ", node.get_path())
@@ -256,7 +256,7 @@ func _combined_input(event, window):
 	if event is InputEventKey:
 		if event.pressed:
 			if event.keycode == KEY_F12:
-				pick(get_window().get_focused_window().get_mouse_position())
+				pick(_get_focused_window().get_mouse_position())
 
 func _on_tree_updated(entry=null, time=null):
 	_connect_window_signals()
@@ -291,3 +291,9 @@ func _disconnect_windows():
 			window.window_input.disconnect(_combined_input)
 	
 	connected_windows.clear()
+
+static func _get_focused_window():
+	for i in DisplayServer.get_window_list():
+		var window = instance_from_id(DisplayServer.window_get_attached_instance_id(i)) as Window
+		if window.has_focus():
+			return window

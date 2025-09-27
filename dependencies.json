@@ -1,0 +1,16 @@
+{
+  "plugins": [
+    {
+      "name": "Godot-Dock-Manager",
+      "version": "0.3.0",
+      "url": "https://github.com/brohd11/Godot-Dock-Manager/releases/download/v0.3.0/dock-manager-demo-0.3.0.zip",
+      "dest": "addons/dock_manager"
+    },
+    {
+      "name": "Godot-Plugin-Exporter",
+      "version": "0.6.0",
+      "url": "https://github.com/brohd11/Godot-Plugin-Exporter/releases/download/v0.6.0/plugin-exporter-0.6.0.zip",
+      "dest": "addons/plugin_exporter"
+    }
+  ]
+}
