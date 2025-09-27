@@ -5,4 +5,5 @@
 /android/
 
 .addons
-addons/plugin_exporter
+/addons/plugin_exporter
+/addons/dock_manager
