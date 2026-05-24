@@ -14,19 +14,41 @@ signal node_selected(node: Node)
 const METADATA_NODE_NAME = 0
 var _control_highlighter: ColorRect = null
 
+var connected_windows:Array = []
+
 func _enter_tree() -> void:
 	if is_part_of_edited_scene():
 		set_process(false)
 		return
+	
+	_create_highlighter()
+	get_viewport().add_child.call_deferred(_control_highlighter)
+
+func _create_highlighter():
 	_control_highlighter = ColorRect.new()
 	_control_highlighter.color = Color(EditorInterface.get_editor_theme().get_color("accent_color", &"Editor"), 0.1)
 	_control_highlighter.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_control_highlighter.hide()
-	get_viewport().add_child.call_deferred(_control_highlighter)
+
 
 func _exit_tree() -> void:
-	if _control_highlighter != null:
+	if is_instance_valid(_control_highlighter):
 		_control_highlighter.queue_free()
+	
+	_disconnect_windows()
+
+
+func _ready() -> void:
+	if is_part_of_edited_scene():
+		return
+	_connect_window_signals()
+	
+	# call in ready, otherwise _tree is not valid yet
+	if not tree_entered.is_connected(_on_tree_updated):
+		tree_entered.connect(_on_tree_updated)
+	if not _tree.updated_entries.is_connected(_on_tree_updated):
+		_tree.updated_entries.connect(_on_tree_updated)
+
 
 func highlight_checkbox_toggled(value: bool) -> void:
 	if !value:
@@ -61,32 +83,46 @@ func _on_Tree_item_selected() -> void:
 func _on_Tree_item_mouse_selected(_position: Vector2, mouse_button_index: int) -> void:
 	if mouse_button_index == MOUSE_BUTTON_RIGHT:
 		_select_node()
-		_popup_menu.set_position(get_viewport().get_mouse_position())
+		_popup_menu.set_position(DisplayServer.mouse_get_position())
 		_popup_menu.popup()
 
 func _highlight_node(node: Node) -> void:
+	# the control highlighter can get freed when an editor window is closed
+	if not is_instance_valid(_control_highlighter):
+		_create_highlighter()
+	
 	if !_highlight_checkbox.button_pressed:
 		_control_highlighter.hide()
 		return
+	
+	if node is not Control:
+		_control_highlighter.hide()
+		return
+	
+	if _control_highlighter.get_window() != node.get_window():
+		if is_instance_valid(_control_highlighter.get_parent()):
+			_control_highlighter.reparent(node.get_viewport())
+		else:
+			node.get_viewport().add_child(_control_highlighter)
+
 	if node is Control:
 		var target_control := (node as Control)
 		_control_highlighter.global_position = target_control.global_position
 		_control_highlighter.size = target_control.size
 		_control_highlighter.show()
-	else:
-		_control_highlighter.hide()
+	
 
 func _on_Tree_nothing_selected() -> void:
 	_control_highlighter.hide()
 
-func _input(event: InputEvent) -> void:
+# all window input combined
+func _combined_input(event:InputEvent, window:Window) -> void:
 	if event is InputEventKey:
-		if event.pressed:
-			if event.keycode == KEY_F12:
-				pick(get_viewport().get_mouse_position())
+		if event.pressed and event.keycode == KEY_F12:
+			pick(get_window().get_focused_window().get_mouse_position())
 
 func pick(mpos: Vector2) -> void:
-	var root := get_tree().root
+	var root := get_window().get_focused_window()
 	var node := _pick(root, mpos)
 	if node != null:
 		print("Picked ", node, " at ", node.get_path())
@@ -118,6 +154,7 @@ func _pick(root: Node, mpos: Vector2, level := 0) -> Node:
 			if c != null:
 				return c
 	return node
+
 
 static func override_ownership(root: Node, owners: Dictionary, include_internal: bool) -> void:
 	assert(root is Node)
@@ -173,3 +210,39 @@ func _on_SaveBranchFileDialog_file_selected(path: String) -> void:
 	ResourceSaver.save(packed_scene, path)
 	# Revert ownership of all children.
 	restore_ownership(node, owners, true)
+
+
+# window management
+func _on_tree_updated(entry=null, time=null) -> void:
+	_connect_window_signals()
+
+func _connect_window_signals() -> void:
+	for i in DisplayServer.get_window_list():
+		var window = instance_from_id(DisplayServer.window_get_attached_instance_id(i))
+		if not window.window_input.is_connected(_combined_input):
+			window.window_input.connect(_combined_input.bind(window))
+			if not window in connected_windows:
+				connected_windows.append(window)
+	
+	_clean_free_windows()
+
+func _clean_free_windows() -> void:
+	var freed_windows = []
+	for window in connected_windows:
+		if not is_instance_valid(window):
+			freed_windows.append(window)
+	
+	for window in freed_windows:
+		connected_windows.erase(window)
+
+
+func _disconnect_windows() -> void:
+	_clean_free_windows()
+	
+	for window in connected_windows:
+		if not is_instance_valid(window):
+			continue
+		if window.window_input.is_connected(_combined_input):
+			window.window_input.disconnect(_combined_input)
+	
+	connected_windows.clear()
